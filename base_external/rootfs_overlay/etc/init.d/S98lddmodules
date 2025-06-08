@@ -1,0 +1,65 @@
+#!/bin/sh
+
+case "$1" in
+    start)
+        echo "Loading scull module"
+        KVER=$(uname -r)
+        MOD_DIR="/lib/modules/$KVER/extra"
+
+        ## Loading scull module by insmod
+        insmod "$MOD_DIR/scull.ko" && echo "scull.ko loaded" || echo "scull.ko loading failed"
+
+        echo "creating /dev/scull[0-3]"
+        major=$(awk "\$2==\"scull\" {print \$1}" /proc/devices)
+        
+        if [ -n "$major" ]; then
+            for i in 0 1 2 3; 
+            do
+                mknod /dev/scull$i c $major $i
+                chmod 666 /dev/scull$i
+            done
+        else
+            echo "could not find scull major number"
+        fi
+
+        ## NOTE: there are other too above one is for read/write device. below are option for any modules. add if required.
+        ## scullpipe[0-3] : this is for like FIFO style scircular buffer
+        ## scullsingle[0-3] : only one process can open at a time (concurancy control)
+        ## sculluid[0-3] : access control
+        ## there other too.
+
+        echo "loading faulty module"
+        insmod "$MOD_DIR/faulty.ko" && echo "faulty.ko loaded" || echo "faulty.ko loading failed"
+
+        major=$(awk "\$2==\"faulty\" {print \$1}" /proc/devices)
+        
+        if [ -n "$major" ]; then
+            mknod /dev/faulty c $major 0
+            chmod 666 /dev/faulty
+        else
+            echo "could not find scull major number"
+        fi
+
+        echo "loading hello module using modprobe"
+        modprobe hello && echo "hello.ko loaded" || echo "hello.ko loading failed"
+        ;;
+
+    stop)
+        echo "Unloading kernel modules"
+
+        #remove scull devices
+        for i in 0 1 2 3;
+        do
+            rm -f /dev/scull$i
+        done
+
+        rmmod faulty 2>/dev/null && echo "faulty.ko unloaded" || echo "faulty.ko unloading failed"
+        rmmod hello 2>/dev/null && echo "hello.ko unloaded" || echo "hello.ko unloading failed"
+        rmmod scull 2>/dev/null && echo "scull.ko unloaded" || echo "scull.ko unloading failed"
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        ;;
+esac
+
+exit 0

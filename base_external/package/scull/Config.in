@@ -1,0 +1,5 @@
+
+config BR2_PACKAGE_SCULL
+	bool "SCULL"
+	help
+	  scull from ldd

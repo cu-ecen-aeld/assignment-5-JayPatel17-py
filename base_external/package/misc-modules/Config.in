@@ -1,0 +1,5 @@
+
+config BR2_PACKAGE_MISC_MODULES
+	bool "MISC_MODULES"
+	help
+	  My misc modules prints hello world and github username
