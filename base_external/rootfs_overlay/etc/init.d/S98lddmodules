@@ -40,12 +40,12 @@ case "$1" in
             echo "could not find scull major number"
         fi
 
-        echo "loading hello module using modprobe"
+        echo "loading hello module"
         modprobe hello && echo "hello.ko loaded" || echo "hello.ko loading failed"
         ;;
 
     stop)
-        echo "Unloading kernel modules"
+        echo "Unloading kernel modules..."
 
         #remove scull devices
         for i in 0 1 2 3;
