@@ -40,7 +40,7 @@ case "$1" in
             echo "could not find scull major number"
         fi
 
-        echo "loading hello module"
+        echo "loading hello module by modprobe"
         modprobe hello && echo "hello.ko loaded" || echo "hello.ko loading failed"
         ;;
 
